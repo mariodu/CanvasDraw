@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>粒子系统</title>
+</head>
+<body>
+<style>
+    #Kinematics {
+        height: 300px;
+        width: 100%;
+    }
+</style>
+<div id="Kinematics">
+    <textarea name="KinematicsCode" id="KinematicsCode" cols="30" rows="10">
+        var position = new Vector(10, 200);
+        var velocity = new Vector(50, -50);
+        var acceleration = new Vector(0, 10);
+        var dt = 0.1;
+
+        function step() {
+            position = position.add(velocity.multiply(dt));
+            velocity = velocity.add(acceleration.multiply(dt));
+
+            ctx.strokeStyle = "#000000";
+            ctx.fillStyle = "#FFFFFF";
+            ctx.beginPath();
+            ctx.arc(position.x, position.y, 5, 0, Math.PI*2, true);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        start("kCanvas", step);
+    </textarea>
+    <canvas id="kCanvas" width="600" height="400"></canvas>
+    <button onclick="eval(document.getElementById('KinematicsCode').value)">Start</button>
+    <button onclick="stop()">Stop</button>
+</div>
+<div id="BaseParticle">
+    <textarea name="BPSCode" id="BPSCode" cols="30" rows="10">
+        var ps = new ParticleSystem();
+        var dt = 0.01;
+
+        function sampleDirection() {
+            var theta = Math.random() * 2 * Math.PI;
+            return new Vector(Math.cos(theta), Math.sin(theta));
+        }
+
+        function step() {
+            ps.emit(new Particle(new Vector(200, 200), sampleDirection().multiply(100), 1, Color.red, 5));
+            ps.simulate(dt);
+
+            clearCanvas();
+            ps.render(ctx);
+        }
+
+        start("bpsCanvas", step);
+    </textarea>
+    <canvas id="bpsCanvas" width="600" height="400"></canvas>
+    <button onclick="eval(document.getElementById('BPSCode').value)">Start</button>
+    <button onclick="stop()">Stop</button>
+</div>
+
+<div id="collision">
+
+    <textarea name="collisionCode" id="collisionCode" cols="30" rows="10">
+        var ps = new ParticleSystem();
+        ps.effectors.push(new ChamberBox(0, 0, 400, 400));
+        var dt = 0.01;
+
+        function sampleDirection(angle1, angle2) {
+            var t = Math.random();
+            var theta = angle1 * t + angle2 * (1 - t);
+            return new Vector(Math.cos(theta), Math.sin(theta));
+        }
+
+        function sampleColor(color1, color2) {
+            var t = Math.random();
+            return color1.multiply(t).add(color2.multiply(1 - t));
+        }
+
+        function step() {
+            ps.emit(new Particle(new Vector(200, 200), sampleDirection(Math.PI * 1.75, Math.PI * 2).multiply(250), 3, sampleColor(Color.blue, Color.purple), 5));
+            ps.simulate(dt);
+
+            <!--ctx.fillStyle="rgba(0, 0, 0, 0.1)";-->
+            <!--ctx.fillRect(0,0,canvas.width,canvas.height);-->
+            clearCanvas();
+            ps.render(ctx);
+        }
+
+        start("collisionCanvas", step);
+    </textarea>
+    <canvas id="collisionCanvas" width="600" height="400"></canvas>
+    <button onclick="eval(document.getElementById('collisionCode').value)">Start</button>
+    <button onclick="stop()">Stop</button>
+
+</div>
+
+<script src="particles.js"></script>
+</body>
+</html>
